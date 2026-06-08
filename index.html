@@ -31,7 +31,6 @@
     overflow-x: hidden;
   }
 
-  /* Background grain */
   body::before {
     content: '';
     position: fixed;
@@ -79,9 +78,7 @@
     margin-bottom: 12px;
   }
 
-  h1 span {
-    color: var(--accent);
-  }
+  h1 span { color: var(--accent); }
 
   .subtitle {
     color: var(--muted);
@@ -90,7 +87,6 @@
     font-style: italic;
   }
 
-  /* Controls */
   .controls {
     background: var(--surface);
     border: 1px solid var(--border);
@@ -132,10 +128,7 @@
     line-height: 1.5;
   }
 
-  textarea:focus {
-    border-color: var(--accent);
-  }
-
+  textarea:focus { border-color: var(--accent); }
   textarea::placeholder { color: var(--muted); }
 
   .options-row {
@@ -179,6 +172,70 @@
 
   select:focus { border-color: var(--accent); }
 
+  /* NSFW toggle */
+  .nsfw-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 16px;
+    padding: 12px 14px;
+    background: rgba(239,68,68,0.05);
+    border: 1px solid rgba(239,68,68,0.15);
+    border-radius: 10px;
+  }
+
+  .nsfw-row label {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #f87171;
+    cursor: pointer;
+    flex: 1;
+  }
+
+  .nsfw-row span {
+    font-size: 11px;
+    color: var(--muted);
+    font-style: italic;
+  }
+
+  .toggle {
+    position: relative;
+    width: 40px;
+    height: 22px;
+    flex-shrink: 0;
+  }
+
+  .toggle input { opacity: 0; width: 0; height: 0; }
+
+  .toggle-slider {
+    position: absolute;
+    inset: 0;
+    background: var(--border);
+    border-radius: 100px;
+    cursor: pointer;
+    transition: 0.3s;
+  }
+
+  .toggle-slider::before {
+    content: '';
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    left: 3px;
+    top: 3px;
+    background: var(--muted);
+    border-radius: 50%;
+    transition: 0.3s;
+  }
+
+  .toggle input:checked + .toggle-slider { background: rgba(239,68,68,0.3); }
+  .toggle input:checked + .toggle-slider::before {
+    transform: translateX(18px);
+    background: #f87171;
+  }
+
   .btn-generate {
     width: 100%;
     margin-top: 20px;
@@ -193,8 +250,6 @@
     padding: 15px;
     cursor: pointer;
     transition: transform 0.15s, opacity 0.15s, box-shadow 0.2s;
-    position: relative;
-    overflow: hidden;
   }
 
   .btn-generate:hover:not(:disabled) {
@@ -203,13 +258,8 @@
   }
 
   .btn-generate:active:not(:disabled) { transform: translateY(0); }
+  .btn-generate:disabled { opacity: 0.5; cursor: not-allowed; }
 
-  .btn-generate:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-
-  /* Suggestions */
   .suggestions {
     display: flex;
     flex-wrap: wrap;
@@ -246,17 +296,13 @@
     background: rgba(200,241,53,0.05);
   }
 
-  /* Output */
-  .output {
-    animation: fadeUp 0.6s 0.2s ease both;
-  }
+  .output { animation: fadeUp 0.6s 0.2s ease both; }
 
   .image-card {
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: var(--radius);
     overflow: hidden;
-    position: relative;
   }
 
   .image-wrapper {
@@ -301,7 +347,6 @@
 
   .placeholder p { font-size: 13px; font-style: italic; }
 
-  /* Loader */
   .loader {
     display: none;
     flex-direction: column;
@@ -323,6 +368,14 @@
   }
 
   .loader p { font-size: 13px; font-style: italic; }
+
+  .loader-detail {
+    font-size: 11px;
+    color: var(--muted);
+    opacity: 0.6;
+    font-style: normal;
+    letter-spacing: 0.05em;
+  }
 
   .image-footer {
     padding: 16px 20px;
@@ -377,7 +430,6 @@
 
   .error-msg.visible { display: block; }
 
-  /* Animations */
   @keyframes fadeDown {
     from { opacity: 0; transform: translateY(-16px); }
     to { opacity: 1; transform: translateY(0); }
@@ -386,9 +438,7 @@
     from { opacity: 0; transform: translateY(16px); }
     to { opacity: 1; transform: translateY(0); }
   }
-  @keyframes spin {
-    to { transform: rotate(360deg); }
-  }
+  @keyframes spin { to { transform: rotate(360deg); } }
   @keyframes imgReveal {
     from { opacity: 0; transform: scale(1.03); }
     to { opacity: 1; transform: scale(1); }
@@ -407,7 +457,7 @@
   <div class="controls">
     <span class="prompt-label">Descreva a imagem</span>
     <div class="prompt-row">
-      <textarea id="prompt" placeholder="Ex: uma cidade futurista à noite com neon roxo, perspectiva cinematográfica, 8k..."></textarea>
+      <textarea id="prompt" placeholder="Ex: a futuristic city at night with purple neon lights, cinematic perspective, 8k..."></textarea>
     </div>
 
     <div class="options-row">
@@ -415,14 +465,15 @@
         <label>Estilo</label>
         <select id="style">
           <option value="">Padrão</option>
-          <option value="photorealistic, ultra detailed">Fotorrealista</option>
-          <option value="digital art, concept art">Arte Digital</option>
-          <option value="anime style, vibrant">Anime</option>
-          <option value="oil painting, fine art">Pintura a Óleo</option>
-          <option value="watercolor, soft">Aquarela</option>
-          <option value="3d render, octane render">3D / CGI</option>
-          <option value="pixel art, retro">Pixel Art</option>
-          <option value="minimalist, flat design">Minimalista</option>
+          <option value="photorealistic, ultra detailed, 8k">Fotorrealista</option>
+          <option value="digital art, concept art, trending on artstation">Arte Digital</option>
+          <option value="anime style, vibrant colors, studio ghibli">Anime</option>
+          <option value="oil painting, fine art, museum quality">Pintura a Óleo</option>
+          <option value="watercolor, soft edges, delicate">Aquarela</option>
+          <option value="3d render, octane render, cinema4d">3D / CGI</option>
+          <option value="pixel art, retro 16bit">Pixel Art</option>
+          <option value="minimalist, flat design, clean">Minimalista</option>
+          <option value="dark fantasy, dramatic lighting, epic">Dark Fantasy</option>
         </select>
       </div>
       <div class="option-group">
@@ -438,10 +489,21 @@
         <label>Modelo</label>
         <select id="model">
           <option value="flux">Flux (Padrão)</option>
-          <option value="turbo">Turbo (Rápido)</option>
           <option value="flux-realism">Flux Realism</option>
+          <option value="flux-anime">Flux Anime</option>
+          <option value="flux-3d">Flux 3D</option>
+          <option value="turbo">Turbo (Rápido)</option>
         </select>
       </div>
+    </div>
+
+    <div class="nsfw-row">
+      <label for="nsfwToggle">🔞 Conteúdo NSFW</label>
+      <span>Remove filtros de conteúdo</span>
+      <label class="toggle">
+        <input type="checkbox" id="nsfwToggle">
+        <span class="toggle-slider"></span>
+      </label>
     </div>
 
     <button class="btn-generate" id="btnGenerate" onclick="generate()">
@@ -451,12 +513,12 @@
 
   <div class="suggestions">
     <span class="suggestion-label">Inspirações →</span>
-    <button class="tag" onclick="setPrompt('astronauta flutuando numa floresta alienígena com bioluminescência, cinematográfico')">🚀 Floresta Alienígena</button>
-    <button class="tag" onclick="setPrompt('café aconchegante no Japão durante chuva, janelas embaçadas, iluminação quente')">☕ Café Japonês</button>
-    <button class="tag" onclick="setPrompt('dragão de cristal voando sobre montanhas nevadas ao pôr do sol, fantasia épica')">🐉 Dragão de Cristal</button>
-    <button class="tag" onclick="setPrompt('mulher ciborgue com olhos brilhantes numa cidade cyberpunk chuvosa, neon, detalhes')">🤖 Cyberpunk</button>
-    <button class="tag" onclick="setPrompt('livros antigos flutuando numa biblioteca mágica com partículas de luz dourada')">📚 Biblioteca Mágica</button>
-    <button class="tag" onclick="setPrompt('praia tropical ao nascer do sol com água cristalina e areia branca, foto profissional')">🌅 Praia Tropical</button>
+    <button class="tag" onclick="setPrompt('astronaut floating in an alien forest with bioluminescence, cinematic')">🚀 Floresta Alienígena</button>
+    <button class="tag" onclick="setPrompt('cozy cafe in Japan during rain, foggy windows, warm lighting, photorealistic')">☕ Café Japonês</button>
+    <button class="tag" onclick="setPrompt('crystal dragon flying over snowy mountains at sunset, epic fantasy, detailed')">🐉 Dragão de Cristal</button>
+    <button class="tag" onclick="setPrompt('cyborg woman with glowing eyes in a rainy cyberpunk city, neon lights, ultra detailed')">🤖 Cyberpunk</button>
+    <button class="tag" onclick="setPrompt('ancient books floating in a magical library with golden light particles, fantasy')">📚 Biblioteca Mágica</button>
+    <button class="tag" onclick="setPrompt('tropical beach at sunrise with crystal clear water and white sand, professional photography')">🌅 Praia Tropical</button>
   </div>
 
   <div class="output">
@@ -469,6 +531,7 @@
         <div class="loader" id="loader">
           <div class="spinner"></div>
           <p>Gerando sua imagem...</p>
+          <span class="loader-detail" id="loaderDetail">Isso pode levar até 30 segundos</span>
         </div>
         <img id="resultImg" alt="Imagem gerada" />
       </div>
@@ -477,7 +540,7 @@
         <button class="btn-download" id="btnDownload" disabled onclick="downloadImage()">⬇ Baixar</button>
       </div>
     </div>
-    <div class="error-msg" id="errorMsg">Não foi possível gerar a imagem. Tente novamente.</div>
+    <div class="error-msg" id="errorMsg">Não foi possível gerar a imagem. O serviço pode estar sobrecarregado — tente novamente em alguns segundos.</div>
   </div>
 </div>
 
@@ -489,8 +552,33 @@
     document.getElementById('prompt').focus();
   }
 
-  function getSize() {
-    return document.getElementById('ratio').value;
+  function buildUrl(prompt, attempt) {
+    const style = document.getElementById('style').value;
+    const model = document.getElementById('model').value;
+    const [width, height] = document.getElementById('ratio').value.split('x');
+    const nsfw = document.getElementById('nsfwToggle').checked;
+    const seed = Math.floor(Math.random() * 9999999);
+
+    const fullPrompt = style ? `${prompt}, ${style}` : prompt;
+    const encoded = encodeURIComponent(fullPrompt);
+
+    // Attempt 0: pollinations with safe=false
+    // Attempt 1: pollinations with different seed (retry)
+    // Attempt 2: pollinations turbo fallback
+    const models = [model, model, 'turbo'];
+    const useModel = models[attempt] || 'turbo';
+
+    return `https://image.pollinations.ai/prompt/${encoded}?width=${width}&height=${height}&model=${useModel}&seed=${seed}&nologo=true${nsfw ? '&safe=false' : ''}`;
+  }
+
+  async function tryLoad(url) {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      const timeout = setTimeout(() => reject(new Error('timeout')), 45000);
+      img.onload = () => { clearTimeout(timeout); resolve(url); };
+      img.onerror = () => { clearTimeout(timeout); reject(new Error('load error')); };
+      img.src = url;
+    });
   }
 
   async function generate() {
@@ -500,48 +588,49 @@
       return;
     }
 
-    const style = document.getElementById('style').value;
-    const model = document.getElementById('model').value;
-    const [width, height] = getSize().split('x');
-
-    const fullPrompt = style ? `${prompt}, ${style}` : prompt;
-    const seed = Math.floor(Math.random() * 999999);
-
-    const url = `https://image.pollinations.ai/prompt/${encodeURIComponent(fullPrompt)}?width=${width}&height=${height}&model=${model}&seed=${seed}&nologo=true`;
-
-    // UI state: loading
     document.getElementById('btnGenerate').disabled = true;
     document.getElementById('btnDownload').disabled = true;
     document.getElementById('placeholder').classList.add('hidden');
     document.getElementById('loader').classList.add('active');
     document.getElementById('resultImg').classList.remove('visible');
     document.getElementById('errorMsg').classList.remove('visible');
-    document.getElementById('imgPromptText').textContent = fullPrompt;
+    document.getElementById('imgPromptText').textContent = prompt;
 
-    try {
-      const img = document.getElementById('resultImg');
-      img.src = '';
+    const details = [
+      'Isso pode levar até 30 segundos…',
+      'Tentando novamente…',
+      'Última tentativa com modelo alternativo…'
+    ];
 
-      await new Promise((resolve, reject) => {
-        const tempImg = new Image();
-        tempImg.onload = () => {
-          img.src = url;
-          resolve();
-        };
-        tempImg.onerror = reject;
-        tempImg.src = url;
-      });
+    let success = false;
 
-      img.classList.add('visible');
-      currentImageUrl = url;
-      document.getElementById('btnDownload').disabled = false;
-    } catch {
+    for (let attempt = 0; attempt < 3; attempt++) {
+      document.getElementById('loaderDetail').textContent = details[attempt];
+      const url = buildUrl(prompt, attempt);
+
+      try {
+        await tryLoad(url);
+        const img = document.getElementById('resultImg');
+        img.src = url;
+        img.classList.add('visible');
+        currentImageUrl = url;
+        document.getElementById('btnDownload').disabled = false;
+        success = true;
+        break;
+      } catch {
+        if (attempt < 2) {
+          await new Promise(r => setTimeout(r, 3000));
+        }
+      }
+    }
+
+    if (!success) {
       document.getElementById('errorMsg').classList.add('visible');
       document.getElementById('placeholder').classList.remove('hidden');
-    } finally {
-      document.getElementById('loader').classList.remove('active');
-      document.getElementById('btnGenerate').disabled = false;
     }
+
+    document.getElementById('loader').classList.remove('active');
+    document.getElementById('btnGenerate').disabled = false;
   }
 
   async function downloadImage() {
