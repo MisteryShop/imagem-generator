@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gerador de Imagens IA</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0a0a0f;
+    --surface: #13131a;
+    --border: #1e1e2e;
+    --accent: #c8f135;
+    --accent2: #7c3aed;
+    --text: #e8e8f0;
+    --muted: #5a5a78;
+    --radius: 16px;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 20px;
+    overflow-x: hidden;
+  }
+
+  /* Background grain */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.4;
+  }
+
+  .container {
+    width: 100%;
+    max-width: 760px;
+    position: relative;
+    z-index: 1;
+  }
+
+  header {
+    text-align: center;
+    margin-bottom: 48px;
+    animation: fadeDown 0.6s ease both;
+  }
+
+  .badge {
+    display: inline-block;
+    background: rgba(200, 241, 53, 0.08);
+    border: 1px solid rgba(200, 241, 53, 0.2);
+    color: var(--accent);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 5px 14px;
+    border-radius: 100px;
+    margin-bottom: 18px;
+  }
+
+  h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(2rem, 6vw, 3.4rem);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    color: var(--text);
+    margin-bottom: 12px;
+  }
+
+  h1 span {
+    color: var(--accent);
+  }
+
+  .subtitle {
+    color: var(--muted);
+    font-size: 15px;
+    font-weight: 300;
+    font-style: italic;
+  }
+
+  /* Controls */
+  .controls {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 28px;
+    margin-bottom: 24px;
+    animation: fadeUp 0.6s 0.1s ease both;
+  }
+
+  .prompt-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+    display: block;
+  }
+
+  .prompt-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  textarea {
+    flex: 1;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    padding: 14px 16px;
+    resize: none;
+    height: 80px;
+    outline: none;
+    transition: border-color 0.2s;
+    line-height: 1.5;
+  }
+
+  textarea:focus {
+    border-color: var(--accent);
+  }
+
+  textarea::placeholder { color: var(--muted); }
+
+  .options-row {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .option-group {
+    flex: 1;
+    min-width: 130px;
+  }
+
+  .option-group label {
+    display: block;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 7px;
+  }
+
+  select {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    padding: 9px 12px;
+    outline: none;
+    cursor: pointer;
+    transition: border-color 0.2s;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%235a5a78' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+  }
+
+  select:focus { border-color: var(--accent); }
+
+  .btn-generate {
+    width: 100%;
+    margin-top: 20px;
+    background: var(--accent);
+    color: #0a0a0f;
+    border: none;
+    border-radius: 10px;
+    font-family: 'Syne', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    padding: 15px;
+    cursor: pointer;
+    transition: transform 0.15s, opacity 0.15s, box-shadow 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn-generate:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 32px rgba(200,241,53,0.25);
+  }
+
+  .btn-generate:active:not(:disabled) { transform: translateY(0); }
+
+  .btn-generate:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  /* Suggestions */
+  .suggestions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 24px;
+    animation: fadeUp 0.6s 0.15s ease both;
+  }
+
+  .suggestion-label {
+    width: 100%;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 2px;
+  }
+
+  .tag {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    padding: 5px 12px;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .tag:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: rgba(200,241,53,0.05);
+  }
+
+  /* Output */
+  .output {
+    animation: fadeUp 0.6s 0.2s ease both;
+  }
+
+  .image-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    position: relative;
+  }
+
+  .image-wrapper {
+    width: 100%;
+    aspect-ratio: 1;
+    background: var(--bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .image-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: none;
+    animation: imgReveal 0.5s ease;
+  }
+
+  .image-wrapper img.visible { display: block; }
+
+  .placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    color: var(--muted);
+  }
+
+  .placeholder-icon {
+    width: 64px;
+    height: 64px;
+    border: 1px dashed var(--border);
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 26px;
+  }
+
+  .placeholder p { font-size: 13px; font-style: italic; }
+
+  /* Loader */
+  .loader {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    color: var(--muted);
+  }
+
+  .loader.active { display: flex; }
+  .placeholder.hidden { display: none; }
+
+  .spinner {
+    width: 44px;
+    height: 44px;
+    border: 2px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  .loader p { font-size: 13px; font-style: italic; }
+
+  .image-footer {
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-top: 1px solid var(--border);
+    gap: 10px;
+  }
+
+  .image-prompt-text {
+    font-size: 12px;
+    color: var(--muted);
+    font-style: italic;
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .btn-download {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    padding: 7px 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+
+  .btn-download:hover:not(:disabled) {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .btn-download:disabled { opacity: 0.3; cursor: not-allowed; }
+
+  .error-msg {
+    display: none;
+    background: rgba(239,68,68,0.08);
+    border: 1px solid rgba(239,68,68,0.2);
+    color: #f87171;
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-size: 13px;
+    margin-top: 12px;
+    text-align: center;
+  }
+
+  .error-msg.visible { display: block; }
+
+  /* Animations */
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+  @keyframes imgReveal {
+    from { opacity: 0; transform: scale(1.03); }
+    to { opacity: 1; transform: scale(1); }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <div class="badge">✦ Powered by Pollinations AI</div>
+    <h1>Gerador de<br><span>Imagens IA</span></h1>
+    <p class="subtitle">Descreva qualquer cena e veja tomar forma</p>
+  </header>
+
+  <div class="controls">
+    <span class="prompt-label">Descreva a imagem</span>
+    <div class="prompt-row">
+      <textarea id="prompt" placeholder="Ex: uma cidade futurista à noite com neon roxo, perspectiva cinematográfica, 8k..."></textarea>
+    </div>
+
+    <div class="options-row">
+      <div class="option-group">
+        <label>Estilo</label>
+        <select id="style">
+          <option value="">Padrão</option>
+          <option value="photorealistic, ultra detailed">Fotorrealista</option>
+          <option value="digital art, concept art">Arte Digital</option>
+          <option value="anime style, vibrant">Anime</option>
+          <option value="oil painting, fine art">Pintura a Óleo</option>
+          <option value="watercolor, soft">Aquarela</option>
+          <option value="3d render, octane render">3D / CGI</option>
+          <option value="pixel art, retro">Pixel Art</option>
+          <option value="minimalist, flat design">Minimalista</option>
+        </select>
+      </div>
+      <div class="option-group">
+        <label>Proporção</label>
+        <select id="ratio">
+          <option value="1024x1024">Quadrado (1:1)</option>
+          <option value="1280x720">Paisagem (16:9)</option>
+          <option value="720x1280">Retrato (9:16)</option>
+          <option value="1280x960">4:3</option>
+        </select>
+      </div>
+      <div class="option-group">
+        <label>Modelo</label>
+        <select id="model">
+          <option value="flux">Flux (Padrão)</option>
+          <option value="turbo">Turbo (Rápido)</option>
+          <option value="flux-realism">Flux Realism</option>
+        </select>
+      </div>
+    </div>
+
+    <button class="btn-generate" id="btnGenerate" onclick="generate()">
+      ✦ Gerar Imagem
+    </button>
+  </div>
+
+  <div class="suggestions">
+    <span class="suggestion-label">Inspirações →</span>
+    <button class="tag" onclick="setPrompt('astronauta flutuando numa floresta alienígena com bioluminescência, cinematográfico')">🚀 Floresta Alienígena</button>
+    <button class="tag" onclick="setPrompt('café aconchegante no Japão durante chuva, janelas embaçadas, iluminação quente')">☕ Café Japonês</button>
+    <button class="tag" onclick="setPrompt('dragão de cristal voando sobre montanhas nevadas ao pôr do sol, fantasia épica')">🐉 Dragão de Cristal</button>
+    <button class="tag" onclick="setPrompt('mulher ciborgue com olhos brilhantes numa cidade cyberpunk chuvosa, neon, detalhes')">🤖 Cyberpunk</button>
+    <button class="tag" onclick="setPrompt('livros antigos flutuando numa biblioteca mágica com partículas de luz dourada')">📚 Biblioteca Mágica</button>
+    <button class="tag" onclick="setPrompt('praia tropical ao nascer do sol com água cristalina e areia branca, foto profissional')">🌅 Praia Tropical</button>
+  </div>
+
+  <div class="output">
+    <div class="image-card">
+      <div class="image-wrapper" id="imageWrapper">
+        <div class="placeholder" id="placeholder">
+          <div class="placeholder-icon">🎨</div>
+          <p>Sua imagem aparecerá aqui</p>
+        </div>
+        <div class="loader" id="loader">
+          <div class="spinner"></div>
+          <p>Gerando sua imagem...</p>
+        </div>
+        <img id="resultImg" alt="Imagem gerada" />
+      </div>
+      <div class="image-footer">
+        <span class="image-prompt-text" id="imgPromptText">—</span>
+        <button class="btn-download" id="btnDownload" disabled onclick="downloadImage()">⬇ Baixar</button>
+      </div>
+    </div>
+    <div class="error-msg" id="errorMsg">Não foi possível gerar a imagem. Tente novamente.</div>
+  </div>
+</div>
+
+<script>
+  let currentImageUrl = null;
+
+  function setPrompt(text) {
+    document.getElementById('prompt').value = text;
+    document.getElementById('prompt').focus();
+  }
+
+  function getSize() {
+    return document.getElementById('ratio').value;
+  }
+
+  async function generate() {
+    const prompt = document.getElementById('prompt').value.trim();
+    if (!prompt) {
+      document.getElementById('prompt').focus();
+      return;
+    }
+
+    const style = document.getElementById('style').value;
+    const model = document.getElementById('model').value;
+    const [width, height] = getSize().split('x');
+
+    const fullPrompt = style ? `${prompt}, ${style}` : prompt;
+    const seed = Math.floor(Math.random() * 999999);
+
+    const url = `https://image.pollinations.ai/prompt/${encodeURIComponent(fullPrompt)}?width=${width}&height=${height}&model=${model}&seed=${seed}&nologo=true`;
+
+    // UI state: loading
+    document.getElementById('btnGenerate').disabled = true;
+    document.getElementById('btnDownload').disabled = true;
+    document.getElementById('placeholder').classList.add('hidden');
+    document.getElementById('loader').classList.add('active');
+    document.getElementById('resultImg').classList.remove('visible');
+    document.getElementById('errorMsg').classList.remove('visible');
+    document.getElementById('imgPromptText').textContent = fullPrompt;
+
+    try {
+      const img = document.getElementById('resultImg');
+      img.src = '';
+
+      await new Promise((resolve, reject) => {
+        const tempImg = new Image();
+        tempImg.onload = () => {
+          img.src = url;
+          resolve();
+        };
+        tempImg.onerror = reject;
+        tempImg.src = url;
+      });
+
+      img.classList.add('visible');
+      currentImageUrl = url;
+      document.getElementById('btnDownload').disabled = false;
+    } catch {
+      document.getElementById('errorMsg').classList.add('visible');
+      document.getElementById('placeholder').classList.remove('hidden');
+    } finally {
+      document.getElementById('loader').classList.remove('active');
+      document.getElementById('btnGenerate').disabled = false;
+    }
+  }
+
+  async function downloadImage() {
+    if (!currentImageUrl) return;
+    try {
+      const res = await fetch(currentImageUrl);
+      const blob = await res.blob();
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'imagem-ia.jpg';
+      a.click();
+    } catch {
+      window.open(currentImageUrl, '_blank');
+    }
+  }
+
+  document.getElementById('prompt').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) generate();
+  });
+</script>
+</body>
+</html>
