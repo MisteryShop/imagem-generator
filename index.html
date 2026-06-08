@@ -35,11 +35,11 @@
   .subtitle { color: var(--muted); font-size: 15px; font-weight: 300; font-style: italic; }
   .controls { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 28px; margin-bottom: 24px; animation: fadeUp 0.6s 0.1s ease both; }
   .prompt-label { font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; display: block; }
-  .prompt-row { display: flex; gap: 10px; margin-bottom: 20px; }
   textarea {
-    flex: 1; background: var(--bg); border: 1px solid var(--border); border-radius: 10px;
+    width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 10px;
     color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 14px;
-    padding: 14px 16px; resize: none; height: 80px; outline: none; transition: border-color 0.2s; line-height: 1.5;
+    padding: 14px 16px; resize: none; height: 80px; outline: none;
+    transition: border-color 0.2s; line-height: 1.5; margin-bottom: 20px; display: block;
   }
   textarea:focus { border-color: var(--accent); }
   textarea::placeholder { color: var(--muted); }
@@ -88,12 +88,14 @@
   .placeholder { display: flex; flex-direction: column; align-items: center; gap: 14px; color: var(--muted); }
   .placeholder-icon { width: 64px; height: 64px; border: 1px dashed var(--border); border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 26px; }
   .placeholder p { font-size: 13px; font-style: italic; }
-  .loader { display: none; flex-direction: column; align-items: center; gap: 16px; color: var(--muted); }
+  .loader { display: none; flex-direction: column; align-items: center; gap: 12px; color: var(--muted); }
   .loader.active { display: flex; }
   .placeholder.hidden { display: none; }
   .spinner { width: 44px; height: 44px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; }
-  .loader p { font-size: 13px; font-style: italic; }
+  .loader-msg { font-size: 13px; font-style: italic; }
   .loader-detail { font-size: 11px; color: var(--muted); opacity: 0.6; letter-spacing: 0.05em; }
+  .progress-bar-wrap { width: 200px; height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; }
+  .progress-bar { height: 100%; background: var(--accent); border-radius: 2px; width: 0%; transition: width 0.5s ease; }
   .image-footer { padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; border-top: 1px solid var(--border); gap: 10px; }
   .image-prompt-text { font-size: 12px; color: var(--muted); font-style: italic; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .btn-download { background: transparent; border: 1px solid var(--border); color: var(--text); border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 12px; padding: 7px 14px; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
@@ -110,50 +112,52 @@
 <body>
 <div class="container">
   <header>
-    <div class="badge">✦ Powered by Hugging Face</div>
+    <div class="badge">✦ Powered by Stable Horde</div>
     <h1>Gerador de<br><span>Imagens IA</span></h1>
     <p class="subtitle">Descreva qualquer cena e veja tomar forma</p>
   </header>
 
   <div class="controls">
     <span class="prompt-label">Descreva a imagem</span>
-    <div class="prompt-row">
-      <textarea id="prompt" placeholder="Ex: a futuristic city at night with purple neon lights, cinematic, 8k..."></textarea>
-    </div>
+    <textarea id="prompt" placeholder="Ex: a futuristic city at night with purple neon lights, cinematic, 8k..."></textarea>
+
     <div class="options-row">
       <div class="option-group">
         <label>Estilo</label>
         <select id="style">
           <option value="">Padrão</option>
-          <option value="photorealistic, ultra detailed, 8k">Fotorrealista</option>
-          <option value="digital art, concept art, trending on artstation">Arte Digital</option>
-          <option value="anime style, vibrant colors">Anime</option>
-          <option value="oil painting, fine art">Pintura a Óleo</option>
-          <option value="watercolor, soft edges">Aquarela</option>
-          <option value="3d render, octane render">3D / CGI</option>
+          <option value="photorealistic, ultra detailed, 8k photography">Fotorrealista</option>
+          <option value="digital art, concept art, artstation">Arte Digital</option>
+          <option value="anime style, vibrant colors, detailed">Anime</option>
+          <option value="oil painting, fine art, museum quality">Pintura a Óleo</option>
+          <option value="watercolor, soft edges, delicate">Aquarela</option>
+          <option value="3d render, octane render, cinema4d">3D / CGI</option>
           <option value="pixel art, retro 16bit">Pixel Art</option>
-          <option value="minimalist, flat design, clean">Minimalista</option>
           <option value="dark fantasy, dramatic lighting, epic">Dark Fantasy</option>
         </select>
       </div>
       <div class="option-group">
         <label>Proporção</label>
         <select id="ratio">
-          <option value="1024x1024">Quadrado (1:1)</option>
-          <option value="1280x720">Paisagem (16:9)</option>
-          <option value="720x1280">Retrato (9:16)</option>
+          <option value="512x512">Quadrado (1:1)</option>
+          <option value="768x512">Paisagem (3:2)</option>
+          <option value="512x768">Retrato (2:3)</option>
+          <option value="768x432">Wide (16:9)</option>
         </select>
       </div>
       <div class="option-group">
         <label>Modelo</label>
         <select id="model">
-          <option value="black-forest-labs/FLUX.1-dev">Flux Dev</option>
-          <option value="black-forest-labs/FLUX.1-schnell">Flux Schnell (Rápido)</option>
-          <option value="stabilityai/stable-diffusion-xl-base-1.0">SDXL</option>
-          <option value="Lykon/dreamshaper-xl-turbo">Dreamshaper XL</option>
+          <option value="Deliberate">Deliberate</option>
+          <option value="Dreamshaper">Dreamshaper</option>
+          <option value="SDXL 1.0">SDXL 1.0</option>
+          <option value="Realistic Vision">Realistic Vision</option>
+          <option value="AbsoluteReality">AbsoluteReality</option>
+          <option value="anything-v5">Anything V5 (Anime)</option>
         </select>
       </div>
     </div>
+
     <div class="nsfw-row">
       <label for="nsfwToggle">🔞 Conteúdo NSFW</label>
       <span>Remove filtros de conteúdo</span>
@@ -162,6 +166,7 @@
         <span class="toggle-slider"></span>
       </label>
     </div>
+
     <button class="btn-generate" id="btnGenerate" onclick="generate()">✦ Gerar Imagem</button>
   </div>
 
@@ -184,8 +189,9 @@
         </div>
         <div class="loader" id="loader">
           <div class="spinner"></div>
-          <p id="loaderMsg">Gerando sua imagem...</p>
-          <span class="loader-detail" id="loaderDetail">Isso pode levar até 60 segundos</span>
+          <p class="loader-msg" id="loaderMsg">A enviar pedido...</p>
+          <div class="progress-bar-wrap"><div class="progress-bar" id="progressBar"></div></div>
+          <span class="loader-detail" id="loaderDetail">Aguardando workers disponíveis</span>
         </div>
         <img id="resultImg" alt="Imagem gerada" />
       </div>
@@ -194,17 +200,26 @@
         <button class="btn-download" id="btnDownload" disabled onclick="downloadImage()">⬇ Baixar</button>
       </div>
     </div>
-    <div class="error-msg" id="errorMsg">Não foi possível gerar a imagem. Tente novamente.</div>
+    <div class="error-msg" id="errorMsg"></div>
   </div>
 </div>
 
 <script>
-  const HF_TOKEN = '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';
-  let currentBlob = null;
+  // Stable Horde API — gratuito, sem CORS, com NSFW
+  const API_BASE = 'https://stablehorde.net/api/v2';
+  const ANON_KEY = '0000000000'; // chave anónima gratuita
+  let currentImageUrl = null;
+  let polling = false;
 
   function setPrompt(text) {
     document.getElementById('prompt').value = text;
     document.getElementById('prompt').focus();
+  }
+
+  function setLoading(msg, detail, progress) {
+    document.getElementById('loaderMsg').textContent = msg;
+    document.getElementById('loaderDetail').textContent = detail;
+    if (progress !== undefined) document.getElementById('progressBar').style.width = progress + '%';
   }
 
   async function generate() {
@@ -217,7 +232,7 @@
     const nsfw = document.getElementById('nsfwToggle').checked;
     const fullPrompt = style ? `${prompt}, ${style}` : prompt;
 
-    // UI: loading
+    // UI reset
     document.getElementById('btnGenerate').disabled = true;
     document.getElementById('btnDownload').disabled = true;
     document.getElementById('placeholder').classList.add('hidden');
@@ -225,87 +240,129 @@
     document.getElementById('resultImg').classList.remove('visible');
     document.getElementById('errorMsg').classList.remove('visible');
     document.getElementById('imgPromptText').textContent = fullPrompt;
-    document.getElementById('loaderMsg').textContent = 'Gerando sua imagem...';
-    document.getElementById('loaderDetail').textContent = 'Isso pode levar até 60 segundos';
-    currentBlob = null;
+    document.getElementById('progressBar').style.width = '5%';
+    currentImageUrl = null;
+    polling = true;
 
     try {
-      const body = {
-        inputs: fullPrompt,
-        parameters: {
-          width: parseInt(width),
-          height: parseInt(height),
-          num_inference_steps: 28,
-          guidance_scale: 7.5
-        }
-      };
+      // 1. Submeter pedido
+      setLoading('A enviar pedido...', 'Conectando ao Stable Horde', 10);
 
-      if (nsfw) {
-        body.parameters.safety_checker = false;
-        body.parameters.clip_skip = 2;
-      }
-
-      const response = await fetch(
-        `https://api-inference.huggingface.co/models/${model}`,
-        {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${HF_TOKEN}`,
-            'Content-Type': 'application/json',
-            'x-use-cache': 'false'
+      const submitRes = await fetch(`${API_BASE}/generate/async`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': ANON_KEY
+        },
+        body: JSON.stringify({
+          prompt: fullPrompt,
+          params: {
+            width: parseInt(width),
+            height: parseInt(height),
+            steps: 25,
+            cfg_scale: 7,
+            sampler_name: 'k_euler_a',
+            n: 1
           },
-          body: JSON.stringify(body)
+          nsfw: nsfw,
+          censor_nsfw: !nsfw,
+          models: [model],
+          r2: true
+        })
+      });
+
+      if (!submitRes.ok) {
+        const err = await submitRes.json();
+        throw new Error(err.message || 'Erro ao submeter pedido');
+      }
+
+      const { id } = await submitRes.json();
+      if (!id) throw new Error('ID de geração não recebido');
+
+      setLoading('Pedido enviado!', `ID: ${id.slice(0,8)}...`, 15);
+
+      // 2. Polling para verificar status
+      let attempts = 0;
+      const maxAttempts = 120; // 2 minutos máx
+
+      while (polling && attempts < maxAttempts) {
+        await new Promise(r => setTimeout(r, 3000));
+        attempts++;
+
+        const checkRes = await fetch(`${API_BASE}/generate/check/${id}`);
+        const status = await checkRes.json();
+
+        const waitTime = status.wait_time || 0;
+        const queuePos = status.queue_position || 0;
+        const done = status.done;
+        const faulted = status.faulted;
+
+        if (faulted) throw new Error('Erro no worker — tente outro modelo');
+
+        // calcular progresso visual
+        const estProgress = Math.min(90, 15 + (attempts / maxAttempts) * 75);
+        document.getElementById('progressBar').style.width = estProgress + '%';
+
+        if (done) {
+          setLoading('Imagem pronta! A carregar...', '', 95);
+          break;
+        } else {
+          const waitMsg = waitTime > 0 ? `~${waitTime}s restantes` : 'A processar...';
+          const queueMsg = queuePos > 0 ? ` · Posição na fila: ${queuePos}` : '';
+          setLoading('A gerar imagem...', waitMsg + queueMsg, estProgress);
         }
-      );
-
-      // Model loading — retry
-      if (response.status === 503) {
-        document.getElementById('loaderMsg').textContent = 'Modelo a carregar...';
-        document.getElementById('loaderDetail').textContent = 'Aguarde, isto acontece na primeira vez (~30s)';
-        await new Promise(r => setTimeout(r, 20000));
-        throw new Error('retry');
       }
 
-      if (!response.ok) {
-        const err = await response.text();
-        throw new Error(err);
+      if (attempts >= maxAttempts) throw new Error('Tempo limite excedido — tente novamente');
+
+      // 3. Buscar resultado
+      const resultRes = await fetch(`${API_BASE}/generate/status/${id}`);
+      const result = await resultRes.json();
+
+      if (!result.generations || result.generations.length === 0) {
+        throw new Error('Nenhuma imagem gerada');
       }
 
-      const blob = await response.blob();
-      if (blob.size < 1000) throw new Error('imagem inválida');
+      const imgData = result.generations[0];
+      const imgUrl = imgData.img;
 
-      currentBlob = blob;
-      const url = URL.createObjectURL(blob);
+      if (!imgUrl) throw new Error('URL da imagem não encontrado');
+
+      // Mostrar imagem
       const img = document.getElementById('resultImg');
-      img.src = url;
-      img.classList.add('visible');
-      document.getElementById('btnDownload').disabled = false;
+      img.onload = () => {
+        img.classList.add('visible');
+        document.getElementById('progressBar').style.width = '100%';
+        document.getElementById('btnDownload').disabled = false;
+      };
+      img.src = imgUrl;
+      currentImageUrl = imgUrl;
 
     } catch (e) {
-      if (e.message === 'retry') {
-        // tenta de novo automaticamente
-        document.getElementById('loader').classList.remove('active');
-        document.getElementById('btnGenerate').disabled = false;
-        document.getElementById('placeholder').classList.remove('hidden');
-        document.getElementById('errorMsg').textContent = 'Modelo a iniciar — clique em Gerar novamente.';
-        document.getElementById('errorMsg').classList.add('visible');
-      } else {
-        document.getElementById('errorMsg').textContent = 'Erro ao gerar imagem: ' + (e.message || 'tente novamente.');
+      if (polling) { // só mostra erro se não foi cancelado
+        document.getElementById('errorMsg').textContent = '⚠ ' + (e.message || 'Erro desconhecido. Tente novamente.');
         document.getElementById('errorMsg').classList.add('visible');
         document.getElementById('placeholder').classList.remove('hidden');
       }
     } finally {
+      polling = false;
       document.getElementById('loader').classList.remove('active');
       document.getElementById('btnGenerate').disabled = false;
     }
   }
 
   async function downloadImage() {
-    if (!currentBlob) return;
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(currentBlob);
-    a.download = 'imagem-ia.png';
-    a.click();
+    if (!currentImageUrl) return;
+    try {
+      const res = await fetch(currentImageUrl);
+      const blob = await res.blob();
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'imagem-ia.png';
+      a.click();
+    } catch {
+      window.open(currentImageUrl, '_blank');
+    }
   }
 
   document.getElementById('prompt').addEventListener('keydown', (e) => {
